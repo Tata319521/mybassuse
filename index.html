@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Neon Metronome</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="app">
+    <header class="panel">
+      <div class="panel-row">
+        <div class="led-block">
+          <div class="led-label">速度 (BPM)</div>
+          <div class="led-main">
+            <span class="note-icon">♪</span>
+            <span id="bpmText" class="led-number">65</span>
+          </div>
+          <div id="tempoName" class="led-sub">Adagio</div>
+        </div>
+
+        <div class="led-block center">
+          <div class="led-label">拍号</div>
+          <div class="led-main">
+            <span id="timeSigText" class="led-number">4/4</span>
+          </div>
+        </div>
+
+        <div class="led-block right">
+          <div class="led-label">切分 / 细分</div>
+          <div class="led-main">
+            <span class="note-icon">♪</span>
+            <span id="subdivText" class="led-number">Eighth</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-row">
+        <div class="group">
+          <div class="group-title">拍号调节</div>
+          <div class="stepper">
+            <div class="stepper-col">
+              <div class="stepper-label">节拍 (分子)</div>
+              <div class="stepper-controls">
+                <button class="btn small" id="numMinus">−</button>
+                <div class="stepper-value" id="numValue">4</div>
+                <button class="btn small" id="numPlus">+</button>
+              </div>
+            </div>
+
+            <div class="stepper-col">
+              <div class="stepper-label">单位音符 (分母)</div>
+              <div class="stepper-controls">
+                <button class="btn small" id="denMinus">−</button>
+                <div class="stepper-value" id="denValue">4</div>
+                <button class="btn small" id="denPlus">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">细分模式</div>
+          <div class="row">
+            <select id="subdivSelect" class="select">
+              <option value="quarter">Quarter (每拍1下)</option>
+              <option value="eighth" selected>Eighth (每拍2下)</option>
+              <option value="triplet">Triplet (三连音)</option>
+              <option value="sixteenth">Sixteenth (每拍4下)</option>
+              <option value="swing">Swing (摇摆 2:1)</option>
+              <option value="8-16-16">8-16-16 (切分)</option>
+              <option value="16-8-16">16-8-16 (切分)</option>
+              <option value="16-16-8">16-16-8 (切分)</option>
+            </select>
+
+            <label class="toggle">
+              <input type="checkbox" id="subdivSound" checked />
+              <span class="toggle-ui"></span>
+              <span class="toggle-text">播放细分音</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="group-title">重音 (点方块切换)</div>
+          <div id="accentGrid" class="accent-grid" aria-label="Accent pattern"></div>
+          <div class="legend">
+            <span class="pill strong">强</span>
+            <span class="pill normal">中</span>
+            <span class="pill mute">静音</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="dial-wrap">
+        <button id="dialBtn" class="dial" aria-label="Start/Stop">
+          <div class="dial-inner">
+            <div class="dial-center">
+              <div id="playIcon" class="play-icon"></div>
+            </div>
+          </div>
+        </button>
+
+        <div class="bpm-controls">
+          <div class="bpm-row">
+            <input id="bpmRange" type="range" min="30" max="260" value="65" />
+            <input id="bpmInput" class="bpm-input" type="number" min="30" max="260" value="65" />
+          </div>
+
+          <div class="bottom-row">
+            <div class="mini">
+              <div class="mini-label">当前小节</div>
+              <div class="mini-value" id="barBeatText">1 / 4</div>
+            </div>
+
+            <button id="tapBtn" class="btn tap">TAP</button>
+
+            <div class="mini">
+              <div class="mini-label">音量</div>
+              <input id="volRange" type="range" min="0" max="1" step="0.01" value="0.8" />
+            </div>
+          </div>
+
+          <div class="bottom-row">
+            <div class="mini">
+              <div class="mini-label">音色</div>
+              <select id="soundSelect" class="select small">
+                <option value="click" selected>Click</option>
+                <option value="wood">Wood</option>
+                <option value="beep">Beep</option>
+              </select>
+            </div>
+
+            <button id="resetAccentBtn" class="btn ghost">重置重音</button>
+            <div class="hint">提示：手机端首次播放需要你点一次开始按钮以解锁音频。</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-tip">
+        支持：4/4、7/8、6/8 等；三连音；切分 8-16-16；Tap 测速；每拍强弱；细分音开关。
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
