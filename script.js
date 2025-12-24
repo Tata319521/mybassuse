@@ -105,6 +105,33 @@
     masterGain.connect(audioCtx.destination);
   }
 
+  let audioUnlocked = false;
+
+function unlockAudioOnce() {
+  // 必须在用户手势里调用（touch/click）
+  ensureAudio();
+
+  return audioCtx.resume().then(() => {
+    if (audioUnlocked) return;
+
+    // 关键：播放一个极短、几乎听不见的“静音”声音来解锁 iOS
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.00001, t);
+
+    osc.frequency.setValueAtTime(440, t);
+    osc.connect(g);
+    g.connect(masterGain);
+
+    osc.start(t);
+    osc.stop(t + 0.01);
+
+    audioUnlocked = true;
+  }).catch(() => {});
+}
+
+
   function resumeAudioIfNeeded() {
     ensureAudio();
     if (audioCtx.state !== "running") {
@@ -331,7 +358,10 @@
   }
 
   // ---------- Events ----------
-  dialBtn.addEventListener("click", () => toggle());
+  dialBtn.addEventListener("click", () => {
+  unlockAudioOnce().then(() => toggle());
+});
+
 
   bpmRange.addEventListener("input", (e) => setBpm(e.target.value));
   bpmInput.addEventListener("change", (e) => setBpm(e.target.value));
@@ -340,9 +370,10 @@
     if (masterGain) masterGain.gain.value = parseFloat(volRange.value);
   });
 
-  tapBtn.addEventListener("click", () => {
-    resumeAudioIfNeeded().then(handleTap);
-  });
+tapBtn.addEventListener("click", () => {
+  unlockAudioOnce().then(handleTap);
+});
+
 
   document.addEventListener("keydown", (e) => {
     // Space for TAP
@@ -379,8 +410,15 @@
   initAccents();
   renderAccentGrid();
   updateDisplays();
+  // 手机端音频解锁：任意首次触摸/点击都尝试解锁
+["touchstart", "pointerdown", "mousedown"].forEach(evt => {
+  window.addEventListener(evt, () => unlockAudioOnce(), { passive: true, once: true });
+});
+  // 微信 WebView：有时需要等 WeixinJSBridge 就绪再解锁
+document.addEventListener("WeixinJSBridgeReady", () => unlockAudioOnce(), false);
 
   // if user changes TS quickly, keep UI stable
   setBpm(bpm);
   setTimeSig(tsNum, tsDen);
 })();
+
